@@ -1,0 +1,37 @@
+name: Fraud Model Weekly Retrain
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at midnight
+  workflow_dispatch:      # Allows you to click the "Run workflow" button manually
+
+jobs:
+  retrain_and_log:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          pip install pandas scikit-learn joblib numpy
+
+      - name: Run Fraud Training Script
+        run: python train.py
+
+      - name: Check for New Model
+        run: |
+          if [ -f "fraud_model.pkl" ]; then
+            echo "Success: fraud_model.pkl generated!"
+          else
+            echo "Error: Fraud model file not found!"
+            exit 1
+          fi
+
+      - name: Status Update
+        run: echo "Fraud detection model successfully updated for the week."
